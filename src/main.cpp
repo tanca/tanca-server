@@ -1,0 +1,44 @@
+#include <chrono>
+#include <thread>
+#include <iostream>
+#include <random>
+#include <ctime>
+
+#include "TancaServer.h"
+#include "HttpFileServer.h"
+#include "Util.h"
+#include "Log.h"
+
+#include <signal.h>
+#include <stdlib.h>
+
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+    (void) argc;
+    (void) argv;
+
+    tcp::TcpSocket::Initialize();
+
+    TancaServer tancaServer;
+
+    if (tancaServer.Initialize())
+    {
+        tcp::TcpServer tcpServer(tancaServer);
+        if (tcpServer.Start(100, true, 8081, 8084))
+        {
+            tancaServer.Start();
+        }
+        else
+        {
+            TLogError("[TCP] failure to start server, maybe TCP ports are not free.");
+        }
+        tcpServer.Stop();
+    }
+
+
+    tancaServer.Stop();
+
+    return 0;
+}
